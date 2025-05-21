@@ -7,13 +7,17 @@ document.addEventListener('DOMContentLoaded', function() {
     const bookmarkNoteButton = document.getElementById('bookmarkNote');
     const saveMarkdownButton = document.getElementById('saveFile');
     const saveJsonButton = document.getElementById('loadFile');
+    const addToEditorButton = document.getElementById('addToEditor');
+    const clearEditorButton = document.getElementById('clearEditorButton');
 
     const addRssSourceButton = document.getElementById('addRssSource');
 
     addRssSourceButton.addEventListener('click', addRssSource);
+    addToEditorButton.addEventListener('click', addSelectedToEditor);
     loadRssButton.addEventListener('click', loadRssFeeds);
     saveMarkdownButton.addEventListener('click', saveFile);
     saveJsonButton.addEventListener('click', loadFile);
+    clearEditorButton.addEventListener('click', clearEditor);
 
     function addRssSource() {
         const rssInputs = document.getElementById('rssInputs');
@@ -53,57 +57,41 @@ document.addEventListener('DOMContentLoaded', function() {
     function displayPublications(publications, feedTitle, rssUrl) {
         publications.forEach(publication => {
             const listItem = document.createElement('li');
+            // Assuming publication.link exists. If not, this will be 'undefined' but won't break.
+            const link = publication.link || ''; 
             listItem.innerHTML = `
                 <strong>${feedTitle}:</strong> ${publication.title}
-                <input type="radio" name="selectedPublication" value="${publication.description}" data-feedTitle="${feedTitle}" data-rssUrl="${rssUrl}" data-listItemIndex="${publicationList.children.length}" >
+                <input type="radio" name="selectedPublication" value="${publication.description}" data-feedTitle="${feedTitle}" data-rssUrl="${rssUrl}" data-link="${link}" data-listItemIndex="${publicationList.children.length}" >
             `;
             publicationList.appendChild(listItem);
         });
     }
 
-    function addSelectedToEditor() {
-        const selectedPublications = document.querySelectorAll('.publicationCheckbox:checked');
-        selectedPublications.forEach(checkbox => {
-            const feedTitle = checkbox.dataset.feedTitle;
-            const rssUrl = checkbox.dataset.rssUrl;
-            const content = checkbox.dataset.content;
-            const link = checkbox.dataset.link;
-            const currentDate = new Date().toLocaleDateString();
-            const currentTime = new Date().toLocaleTimeString();
-            const cleanContent = removeHtmlTags(content);
-            editor.value += `\n\n--- From ${feedTitle} - Published on ${currentDate} at ${currentTime} ---\n${cleanContent}\nSource URL: ${rssUrl}\nFull Article: ${link}\n\n`;
-        });
+    function removeHtmlTags(html) {
+        const doc = new DOMParser().parseFromString(html, 'text/html');
+        return doc.body.textContent || "";
     }
 
-    function openPublication(publication, feedTitle, rssUrl, listItem) {
-        const currentDate = new Date().toLocaleDateString();
-        const currentTime = new Date().toLocaleTimeString();
-        const content = publication.description;
-        const cleanContent = removeHtmlTags(content);
-        editor.value += `\n\n--- From ${feedTitle} - Published on ${currentDate} at ${currentTime} ---\n${cleanContent}\nSource URL: ${rssUrl}\n\n`;
+    function addSelectedToEditor() {
+        const selectedPublication = document.querySelector('input[name="selectedPublication"]:checked');
+        if (selectedPublication) {
+            const feedTitle = selectedPublication.dataset.feedtitle; // Note: dataset properties are auto-lowercased
+            const rssUrl = selectedPublication.dataset.rssurl;     // Note: dataset properties are auto-lowercased
+            const content = selectedPublication.value;
+            const link = selectedPublication.dataset.link;
+            const currentDate = new Date().toLocaleDateString();
+            const currentTime = new Date().toLocaleTimeString();
+            
+            const cleanContent = removeHtmlTags(content);
+            
+            editor.value += `\n\n--- From ${feedTitle} - Published on ${currentDate} at ${currentTime} ---\n${cleanContent}\nSource URL: ${rssUrl}\nFull Article: ${link}\n\n`;
+        } else {
+            alert("Please select a publication to add.");
+        }
+    }
 
-        // Add event listener to the publication list to handle radio button selection
-        publicationList.addEventListener('change', function(event) {
-            if (event.target && event.target.name === 'selectedPublication') {
-                const selectedPublication = event.target;
-                const feedTitle = selectedPublication.dataset.feedTitle;
-                const rssUrl = selectedPublication.dataset.rssUrl;
-                const content = selectedPublication.value;
-                const currentDate = new Date().toLocaleDateString();
-                const currentTime = new Date().toLocaleTimeString();
-                const cleanContent = removeHtmlTags(content);
-                editor.value += `\n\n--- From ${feedTitle} - Published on ${currentDate} at ${currentTime} ---\n${cleanContent}\nSource URL: ${rssUrl}\n\n`;
-
-                // Remove highlight from previously selected item
-                const selectedItems = document.querySelectorAll('.rss-list li.selected');
-                selectedItems.forEach(item => item.classList.remove('selected'));
-
-                // Highlight the selected list item
-                const listItemIndex = event.target.dataset.listItemIndex;
-                const listItem = publicationList.children[listItemIndex];
-                listItem.classList.add('selected');
-            }
-        });
+    function clearEditor() {
+        editor.value = '';
     }
 
     function saveFile() {
