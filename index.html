@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RSS Feed Word Processor</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>RSS Feed Word Processor</h1>
+
+        <div class="rss-sources">
+            <h2>RSS Feed Sources</h2>
+            <div id="rssInputs">
+                <div class="rss-input">
+                    <label for="rssUrl">RSS Feed URL:</label>
+                    <input type="url" class="rssUrl" placeholder="Enter RSS Feed URL">
+                </div>
+            </div>
+            <button id="addRssSource">Add RSS Source</button>
+            <button id="loadRss">Load RSS Feeds</button>
+        </div>
+
+        <div class="rss-list">
+            <h2>Recent Publications</h2>
+            <ul id="publicationList">
+                </ul>
+            <button id="addToEditor">Add to Editor</button>
+        </div>
+
+        <div class="editor-window">
+            <h2>Editor</h2>
+            <textarea id="editor" placeholder="Select a publication to view and edit"></textarea>
+        </div>
+
+        <div class="note-controls">
+            <button id="linkNote">Link Note</button>
+            <button id="bookmarkNote">Bookmark Note</button>
+        </div>
+
+        <div class="save-load">
+            <button id="saveFile">Save File</button>
+            <button id="loadFile">Load File</button>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
